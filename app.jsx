@@ -546,31 +546,7 @@ function App() {
           <button className="primary" onClick={openNewDateDialog}>
             日付＆金額を追加
           </button>
-          <button className="secondary" onClick={handleExport}>
-            JSONをダウンロード
-          </button>
-          <button
-            className="secondary"
-            onClick={() => {
-              setImportStatus("");
-              fileInputRef.current?.click();
-            }}
-          >
-            JSONを読み込む
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="application/json"
-            hidden
-            onChange={handleImport}
-          />
         </div>
-        {importStatus && (
-          <span className="caption" style={{ color: importStatus.includes("失敗") ? "#e53935" : "#388e3c" }}>
-            {importStatus}
-          </span>
-        )}
       </header>
 
       <section className="table-container">
@@ -679,7 +655,37 @@ function App() {
         </table>
       </section>
 
-      <MemberDialog
+      <section className="backup-actions">
+        <div className="backup-buttons">
+          <button className="secondary" onClick={handleExport}>
+            バックアップ
+          </button>
+          <button
+            className="secondary"
+            onClick={() => {
+              setImportStatus("");
+              fileInputRef.current?.click();
+            }}
+          >
+            バックアップから復元
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json"
+            hidden
+            onChange={handleImport}
+          />
+        </div>
+        {importStatus && (
+          <span
+            className="caption"
+            style={{ color: importStatus.includes("失敗") ? "#e53935" : "#388e3c" }}
+          >
+            {importStatus}
+          </span>
+        )}
+      </section>\n\n      <MemberDialog
         open={memberDialog.open}
         initialValue={memberDialog.target}
         onClose={closeMemberDialog}

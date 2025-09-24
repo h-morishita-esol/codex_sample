@@ -282,3 +282,24 @@ table tr:hover td.name-cell {
 
 
 
+
+.backup-actions {
+  margin-top: 32px;
+  padding: 24px 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.backup-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.backup-actions .caption {
+  text-align: center;
+}
+
