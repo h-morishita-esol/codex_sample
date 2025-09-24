@@ -283,6 +283,38 @@ table tr:hover td.name-cell {
 
 
 
+.pull-to-refresh {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 0;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  opacity: 0;
+  transition: height 0.2s ease, opacity 0.2s ease, color 0.2s ease;
+  pointer-events: none;
+}
+
+.pull-to-refresh.visible {
+  opacity: 1;
+}
+
+.pull-to-refresh.ready span {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.pull-to-refresh.refreshing span {
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.pull-to-refresh span {
+  padding-bottom: 8px;
+  color: inherit;
+}
 .backup-actions {
   margin-top: 32px;
   padding: 24px 0 40px;

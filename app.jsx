@@ -177,6 +177,10 @@ const validateImportedData = (data) => {
   return sanitizeData(data);
 };
 
+const PULL_TO_REFRESH_THRESHOLD = 80;
+const PULL_TO_REFRESH_MAX_DISTANCE = 120;
+const PULL_TO_REFRESH_INDICATOR_HEIGHT = 56;
+
 function MemberDialog({ open, initialValue, onSubmit, onDelete, onClose }) {
   const [name, setName] = useState(initialValue?.name ?? "");
   const [className, setClassName] = useState(initialValue?.className ?? "");
@@ -317,8 +321,131 @@ function App() {
   const [draggingMemberId, setDraggingMemberId] = useState(null);
   const [dragOverMemberId, setDragOverMemberId] = useState(null);
   const [importStatus, setImportStatus] = useState("");
+  const [pullDistance, setPullDistance] = useState(0);
+  const [pullReady, setPullReady] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const fileInputRef = useRef(null);
+  const pullStartYRef = useRef(0);
+  const pullActiveRef = useRef(false);
+  const thresholdReachedRef = useRef(false);
+  const refreshingRef = useRef(false);
 
+  useEffect(() => {
+    const getScrollTop = () => {
+      const doc = document.documentElement;
+      const body = document.body;
+      return Math.max(
+        window.scrollY || 0,
+        doc ? doc.scrollTop : 0,
+        body ? body.scrollTop : 0
+      );
+    };
+
+    const resetVisualState = () => {
+      setPullDistance(0);
+      setPullReady(false);
+    };
+
+    const triggerRefresh = () => {
+      setPullReady(false);
+      setIsRefreshing(true);
+      setPullDistance(PULL_TO_REFRESH_INDICATOR_HEIGHT);
+      refreshingRef.current = true;
+
+      setTimeout(async () => {
+        try {
+          if ("serviceWorker" in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(
+              registrations.map((registration) => registration.update().catch(() => {}))
+            );
+          }
+        } catch (error) {
+          console.warn("Pull-to-refresh update failed", error);
+        } finally {
+          window.location.reload();
+        }
+      }, 150);
+    };
+
+    const handleTouchStart = (event) => {
+      if (event.touches.length !== 1) {
+        pullActiveRef.current = false;
+        return;
+      }
+      if (getScrollTop() > 0 || refreshingRef.current) {
+        pullActiveRef.current = false;
+        return;
+      }
+      pullActiveRef.current = true;
+      pullStartYRef.current = event.touches[0].clientY;
+      thresholdReachedRef.current = false;
+    };
+
+    const handleTouchMove = (event) => {
+      if (!pullActiveRef.current) {
+        return;
+      }
+      const currentY = event.touches[0].clientY;
+      const diff = currentY - pullStartYRef.current;
+      if (diff <= 0) {
+        thresholdReachedRef.current = false;
+        resetVisualState();
+        return;
+      }
+
+      const distance = Math.min(diff, PULL_TO_REFRESH_MAX_DISTANCE);
+      setPullDistance(distance);
+
+      const reached = distance >= PULL_TO_REFRESH_THRESHOLD;
+      if (reached !== thresholdReachedRef.current) {
+        thresholdReachedRef.current = reached;
+        setPullReady(reached);
+      }
+
+      event.preventDefault();
+    };
+
+    const finishPull = (shouldRefresh) => {
+      pullActiveRef.current = false;
+      pullStartYRef.current = 0;
+
+      if (shouldRefresh && !refreshingRef.current) {
+        thresholdReachedRef.current = false;
+        triggerRefresh();
+        return;
+      }
+
+      thresholdReachedRef.current = false;
+      resetVisualState();
+    };
+
+    const handleTouchEnd = () => {
+      if (!pullActiveRef.current) {
+        return;
+      }
+      finishPull(thresholdReachedRef.current);
+    };
+
+    const handleTouchCancel = () => {
+      if (!pullActiveRef.current) {
+        return;
+      }
+      finishPull(false);
+    };
+
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("touchend", handleTouchEnd);
+    window.addEventListener("touchcancel", handleTouchCancel);
+
+    return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("touchcancel", handleTouchCancel);
+    };
+  }, []);
   useEffect(() => {
     const normalized = ensureAttendanceCompleteness(data);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(normalized));
@@ -532,8 +659,27 @@ function App() {
 
   const totalFooterColspan = sortedDates.length + 2;
 
+  const indicatorHeight = isRefreshing
+    ? PULL_TO_REFRESH_INDICATOR_HEIGHT
+    : Math.max(0, Math.min(pullDistance, PULL_TO_REFRESH_MAX_DISTANCE));
+  const pullMessage = isRefreshing
+    ? "\u66F4\u65B0\u3057\u3066\u3044\u307E\u3059..."
+    : pullReady
+    ? "\u624B\u3092\u96E2\u3057\u3066\u66F4\u65B0"
+    : "\u4E0B\u306B\u5F15\u3063\u5F35\u308B\u3068\u66F4\u65B0\u3067\u304D\u307E\u3059";
+  const pullClassName = [
+    "pull-to-refresh",
+    (pullDistance > 0 || isRefreshing) && "visible",
+    pullReady && !isRefreshing && "ready",
+    isRefreshing && "refreshing",
+  ]
+    .filter(Boolean)
+    .join(" ");
   return (
     <main>
+      <div className={pullClassName} style={{ height: `${indicatorHeight}px` }}>
+        <span>{pullMessage}</span>
+      </div>
       <header>
         <div>
           <h1>部活動経費マネージャー</h1>
