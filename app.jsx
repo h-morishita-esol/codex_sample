@@ -142,6 +142,24 @@ const downloadJson = (data) => {
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 };
+const reorderMembers = (members, sourceId, targetId) => {
+  const sourceIndex = members.findIndex((member) => member.id === sourceId);
+  const targetIndex = members.findIndex((member) => member.id === targetId);
+  if (sourceIndex === -1 || targetIndex === -1) {
+    return members;
+  }
+  if (sourceIndex === targetIndex) {
+    return members;
+  }
+  if (sourceIndex < targetIndex && sourceIndex + 1 === targetIndex) {
+    return members;
+  }
+  const updated = [...members];
+  const [moved] = updated.splice(sourceIndex, 1);
+  const nextIndex = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
+  updated.splice(nextIndex, 0, moved);
+  return updated;
+};
 
 const validateImportedData = (data) => {
   if (!data || typeof data !== "object") {
@@ -296,6 +314,8 @@ function App() {
   const [data, setData] = useState(loadInitialState);
   const [memberDialog, setMemberDialog] = useState({ open: false, target: null });
   const [dateDialog, setDateDialog] = useState({ open: false, target: null });
+  const [draggingMemberId, setDraggingMemberId] = useState(null);
+  const [dragOverMemberId, setDragOverMemberId] = useState(null);
   const [importStatus, setImportStatus] = useState("");
   const fileInputRef = useRef(null);
 
@@ -325,6 +345,77 @@ function App() {
   const openNewDateDialog = () => setDateDialog({ open: true, target: null });
   const openEditDateDialog = (day) => setDateDialog({ open: true, target: day });
 
+  const handleDragStart = (memberId) => (event) => {
+    setDraggingMemberId(memberId);
+    setDragOverMemberId(null);
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = "move";
+      try {
+        event.dataTransfer.setData("text/plain", memberId);
+      } catch (error) {
+        // no-op: some browsers may throw in secure contexts
+      }
+    }
+  };
+
+  const handleDragOver = (memberId) => (event) => {
+    event.preventDefault();
+    if (memberId === draggingMemberId) {
+      return;
+    }
+    setDragOverMemberId(memberId);
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = "move";
+    }
+  };
+
+  const handleDragLeave = (memberId) => () => {
+    if (dragOverMemberId === memberId) {
+      setDragOverMemberId(null);
+    }
+  };
+
+  const handleDrop = (memberId) => (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!draggingMemberId || draggingMemberId === memberId) {
+      return;
+    }
+    setData((prev) => {
+      const members = reorderMembers(prev.members, draggingMemberId, memberId);
+      if (members === prev.members) {
+        return prev;
+      }
+      return { ...prev, members };
+    });
+    setDraggingMemberId(null);
+    setDragOverMemberId(null);
+  };
+
+  const handleDropToEnd = (event) => {
+    if (!draggingMemberId) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    setData((prev) => {
+      const currentIndex = prev.members.findIndex((member) => member.id === draggingMemberId);
+      if (currentIndex === -1 || currentIndex === prev.members.length - 1) {
+        return prev;
+      }
+      const updated = [...prev.members];
+      const [moved] = updated.splice(currentIndex, 1);
+      updated.push(moved);
+      return { ...prev, members: updated };
+    });
+    setDraggingMemberId(null);
+    setDragOverMemberId(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingMemberId(null);
+    setDragOverMemberId(null);
+  };
   const closeMemberDialog = () => setMemberDialog({ open: false, target: null });
   const closeDateDialog = () => setDateDialog({ open: false, target: null });
 
@@ -493,7 +584,7 @@ function App() {
                   <div>{formatDateDisplay(day.date)}</div>
                   <div className="caption">{formatCurrency(day.amount)}</div>
                   <div className="toolbar">
-                    <button className="link" onClick={() => openEditDateDialog(day)}>
+                    <button className="link" draggable={false} onClick={() => openEditDateDialog(day)}>
                       編集
                     </button>
                   </div>
@@ -503,7 +594,14 @@ function App() {
               <th>操作</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody
+            onDragOver={(event) => {
+              if (draggingMemberId) {
+                event.preventDefault();
+              }
+            }}
+            onDrop={handleDropToEnd}
+          >
             {data.members.length === 0 ? (
               <tr>
                 <td colSpan={sortedDates.length + 3} className="caption" style={{ textAlign: "center" }}>
@@ -513,9 +611,33 @@ function App() {
             ) : (
               data.members.map((member) => {
                 const attendanceMap = data.attendance[member.id] || {};
+                const isDragging = draggingMemberId === member.id;
+                const isDragOver = dragOverMemberId === member.id && draggingMemberId !== member.id;
+                const rowClassNames = ["member-row"];
+                if (isDragging) {
+                  rowClassNames.push("dragging");
+                }
+                if (isDragOver) {
+                  rowClassNames.push("drag-over");
+                }
                 return (
-                  <tr key={member.id}>
-                    <td className="name-cell">{member.name}</td>
+                  <tr
+                    key={member.id}
+                    className={rowClassNames.join(" ")}
+                    onDragOver={handleDragOver(member.id)}
+                    onDragLeave={handleDragLeave(member.id)}
+                    onDrop={handleDrop(member.id)}
+                  >
+                    <td
+                      className="name-cell"
+                      draggable
+                      onDragStart={handleDragStart(member.id)}
+                      onDragEnd={handleDragEnd}
+                      aria-grabbed={isDragging}
+                      aria-label={`${member.name} の表示順を変更`}
+                    >
+                      {member.name}
+                    </td>
                     <td className="class-cell">{member.className}</td>
                     {sortedDates.map((day) => {
                       const isOn = Boolean(attendanceMap[day.id]);
@@ -523,6 +645,7 @@ function App() {
                         <td key={day.id} className="toggle-cell">
                           <button
                             className={isOn ? "on" : "off"}
+                            draggable={false}
                             onClick={() => toggleAttendance(member.id, day.id)}
                             aria-pressed={isOn}
                           >
@@ -534,7 +657,7 @@ function App() {
                     <td className="total-cell">{formatCurrency(totals[member.id] || 0)}</td>
                     <td>
                       <div className="toolbar">
-                        <button className="link" onClick={() => openEditMemberDialog(member)}>
+                        <button className="link" draggable={false} onClick={() => openEditMemberDialog(member)}>
                           編集
                         </button>
                       </div>

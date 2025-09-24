@@ -93,7 +93,14 @@ th {
 td.name-cell {
   text-align: left;
   font-weight: 600;
+  cursor: grab;
+  user-select: none;
 }
+
+.member-row.dragging td.name-cell {
+  cursor: grabbing;
+}
+
 
 td.class-cell {
   text-align: left;
@@ -256,6 +263,21 @@ tbody td.name-cell {
 
 table tr:hover td.name-cell {
   background: #e8f2fc;
+}
+
+
+
+
+.member-row.dragging {
+  opacity: 0.6;
+}
+
+.member-row.drag-over td {
+  outline: 2px solid rgba(33, 150, 243, 0.3);
+  outline-offset: -2px;
+}
+.member-row.drag-over td.name-cell {
+  outline-color: rgba(33, 150, 243, 0.5);
 }
 
 
