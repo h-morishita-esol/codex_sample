@@ -522,11 +522,11 @@ function App() {
                       return (
                         <td key={day.id} className="toggle-cell">
                           <button
-                            className={isOn ? "on" : ""}
+                            className={isOn ? "on" : "off"}
                             onClick={() => toggleAttendance(member.id, day.id)}
                             aria-pressed={isOn}
                           >
-                            {isOn ? "◯" : "✕"}
+                            {isOn ? "出" : "欠"}
                           </button>
                         </td>
                       );
