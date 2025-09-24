@@ -36,7 +36,7 @@ const createInitialData = () => {
     members: [
       {
         id: memberId,
-        name: "森下結衣",
+        name: "華道花子",
         className: "2-3",
       },
     ],
@@ -221,7 +221,7 @@ function MemberDialog({ open, initialValue, onSubmit, onDelete, onClose }) {
         <form id="member-dialog-form" onSubmit={handleSubmit}>
           <label>
             名前
-            <input value={name} onChange={(event) => setName(event.target.value)} placeholder="例：森下結衣" />
+            <input value={name} onChange={(event) => setName(event.target.value)} placeholder="例：華道花子" />
           </label>
           <label>
             クラス名
