@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'club-expense-cache-v2';
+﻿const CACHE_NAME = 'club-expense-cache-v3';
 const APP_SHELL = [
   './',
   './index.html',
@@ -46,33 +46,70 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+const networkFirst = async (request) => {
+  try {
+    const response = await fetch(request, { cache: 'reload' });
+    const cache = await caches.open(CACHE_NAME);
+    cache.put(request, response.clone());
+    return response;
+  } catch (error) {
+    const cache = await caches.open(CACHE_NAME);
+    const cached = await cache.match(request);
+    if (cached) {
+      return cached;
+    }
+    throw error;
+  }
+};
+
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') {
     return;
   }
 
-  const requestUrl = event.request.url;
-  if (requestUrl.startsWith('chrome-extension')) {
+  const request = event.request;
+  const destination = request.destination;
+
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      networkFirst(request).catch(async () => {
+        const cache = await caches.open(CACHE_NAME);
+        return cache.match('./index.html');
+      })
+    );
+    return;
+  }
+
+  if (['style', 'script', 'worker'].includes(destination)) {
+    event.respondWith(
+      networkFirst(request).catch(() => caches.match(request))
+    );
     return;
   }
 
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
+      const cached = await cache.match(request);
+      if (cached) {
+        return cached;
+      }
       try {
-        const cachedResponse = await cache.match(event.request);
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        const networkResponse = await fetch(event.request);
-        cache.put(event.request, networkResponse.clone());
-        return networkResponse;
+        const response = await fetch(request);
+        cache.put(request, response.clone());
+        return response;
       } catch (error) {
-        if (event.request.mode === 'navigate') {
+        if (request.destination === 'document') {
           return cache.match('./index.html');
         }
-        return cache.match(event.request) || cache.match('./index.html');
+        throw error;
       }
     })()
   );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });

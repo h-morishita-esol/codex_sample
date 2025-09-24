@@ -20,9 +20,43 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js').catch((error) => {
-          console.error('Service worker registration failed', error);
-        });
+        navigator.serviceWorker
+          .register('./service-worker.js')
+          .then((registration) => {
+            const trySkipWaiting = () => {
+              if (registration.waiting) {
+                registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+              }
+            };
+
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              if (!newWorker) {
+                return;
+              }
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed') {
+                  trySkipWaiting();
+                }
+              });
+            });
+
+            if (registration.waiting) {
+              trySkipWaiting();
+            }
+
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+              if (refreshing) {
+                return;
+              }
+              refreshing = true;
+              window.location.reload();
+            });
+          })
+          .catch((error) => {
+            console.error('Service worker registration failed', error);
+          });
       });
     }
   </script>
