@@ -223,3 +223,30 @@ button.link {
     padding: 10px;
   }
 }
+.table-container {
+  position: relative;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface-elevated);
+}
+
+thead th:first-child {
+  left: 0;
+  z-index: 3;
+}
+
+tbody td.name-cell {
+  position: sticky;
+  left: 0;
+  background: var(--surface);
+  z-index: 1;
+  box-shadow: 2px 0 0 var(--border);
+}
+
+table tr:hover td.name-cell {
+  background: #e8f2fc;
+}
