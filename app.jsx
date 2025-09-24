@@ -685,7 +685,9 @@ function App() {
             {importStatus}
           </span>
         )}
-      </section>\n\n      <MemberDialog
+      </section>
+
+      <MemberDialog
         open={memberDialog.open}
         initialValue={memberDialog.target}
         onClose={closeMemberDialog}
@@ -704,3 +706,4 @@ function App() {
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
