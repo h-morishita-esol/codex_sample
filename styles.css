@@ -303,3 +303,10 @@ table tr:hover td.name-cell {
   text-align: center;
 }
 
+
+table thead {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
