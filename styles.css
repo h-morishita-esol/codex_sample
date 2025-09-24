@@ -179,7 +179,7 @@ input[type="number"] {
   padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
 .dialog-footer {
@@ -257,5 +257,6 @@ tbody td.name-cell {
 table tr:hover td.name-cell {
   background: #e8f2fc;
 }
+
 
 
