@@ -1,36 +1,36 @@
 ﻿:root {
-  color-scheme: light dark;
-  --primary: #2196f3;
-  --primary-dark: #1976d2;
+  color-scheme: light;
+  --primary: #4f9dff;
+  --primary-dark: #1f6dd3;
   --surface: #ffffff;
-  --surface-elevated: #f5f5f5;
-  --accent: #ff6f91;
-  --accent-dark: #ff4f71;
-  --highlight: #ffd166;
-  --text: #212121;
-  --text-muted: #616161;
-  --border: #e0e0e0;
+  --surface-elevated: #f1f5ff;
+  --accent: #ffb86c;
+  --accent-dark: #ff8c42;
+  --highlight: #ffe27a;
+  --text: #1f2942;
+  --text-muted: #5e6c8c;
+  --border: #d9e4ff;
   font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", "BIZ UDPGothic", sans-serif;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(135deg, #fdf0ff 0%, #e1f1ff 60%, #fef6d9 100%);
-  background-attachment: fixed;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(79, 157, 255, 0.12), transparent 62%),
+    radial-gradient(circle at 82% 8%, rgba(255, 184, 108, 0.16), transparent 58%),
+    linear-gradient(135deg, #eef3ff 0%, #f9fbff 100%);
   color: var(--text);
 }
 
 main {
-  max-width: 1200px;
-  margin: 32px auto 48px;
-  padding: 32px 32px 40px;
-  background: rgba(255, 255, 255, 0.92);
-  border-radius: 28px;
-  box-shadow: 0 24px 48px rgba(33, 150, 243, 0.12);
-  backdrop-filter: blur(6px);
+  max-width: 1120px;
+  margin: 48px auto 64px;
+  padding: 48px 48px 56px;
+  background: var(--surface);
+  border-radius: 32px;
+  box-shadow: 0 30px 60px rgba(31, 109, 211, 0.12);
   position: relative;
-  overflow: hidden;
 }
 
 main::before,
@@ -38,25 +38,25 @@ main::after {
   content: "";
   position: absolute;
   border-radius: 50%;
-  opacity: 0.55;
   pointer-events: none;
   z-index: 0;
+  opacity: 0.45;
 }
 
 main::before {
-  top: -110px;
+  top: -140px;
   right: -80px;
-  width: 240px;
-  height: 240px;
-  background: radial-gradient(circle at center, rgba(33, 150, 243, 0.35), transparent 70%);
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle at center, rgba(79, 157, 255, 0.35), transparent 68%);
 }
 
 main::after {
-  bottom: -140px;
-  left: -90px;
-  width: 280px;
-  height: 280px;
-  background: radial-gradient(circle at center, rgba(255, 111, 145, 0.32), transparent 72%);
+  bottom: -160px;
+  left: -120px;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle at center, rgba(255, 184, 108, 0.28), transparent 70%);
 }
 
 main > * {
@@ -65,78 +65,133 @@ main > * {
 }
 
 header {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 40px;
+  margin-bottom: 48px;
+  padding: 56px 64px;
+  border-radius: 28px;
+  color: #fff;
+  background: linear-gradient(120deg, #4f9dff 0%, #6da8ff 45%, #68d4ff 100%);
+  box-shadow: 0 32px 60px rgba(44, 120, 220, 0.25);
+}
+
+header::before,
+header::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+header::before {
+  top: -120px;
+  right: -60px;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.9), transparent 72%);
+}
+
+header::after {
+  bottom: -140px;
+  left: -80px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle at center, rgba(255, 226, 122, 0.7), transparent 70%);
+}
+
+header > div:first-child {
+  z-index: 1;
+  max-width: 480px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 32px;
-  padding: 40px 32px 44px;
-  border-radius: 24px;
-  align-items: center;
-  text-align: center;
-  color: #fff;
-  background-image:
-    linear-gradient(135deg, rgba(33, 150, 243, 0.95), rgba(255, 111, 145, 0.95)),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Crect width='240' height='240' fill='none'/%3E%3Cg fill='%23ffffff' fill-opacity='0.22'%3E%3Ccircle cx='40' cy='40' r='24'/%3E%3Ccircle cx='200' cy='60' r='16'/%3E%3Crect x='150' y='160' width='48' height='48' rx='14'/%3E%3Cpolygon points='60,200 86,236 34,236'/%3E%3Ccircle cx='120' cy='110' r='14'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: cover, 240px;
-  background-repeat: no-repeat, repeat;
-  background-position: center, center;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 18px 40px rgba(33, 150, 243, 0.26);
+  gap: 12px;
 }
 
 header h1 {
   margin: 0;
-  font-size: 1.8rem;
-  letter-spacing: 0.04em;
-  text-shadow: 0 10px 30px rgba(17, 64, 124, 0.4);
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-shadow: 0 12px 32px rgba(15, 55, 120, 0.28);
 }
 
 header p {
   margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 header .actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 16px;
   justify-content: center;
+  align-items: flex-end;
+  z-index: 1;
+  padding: 28px 32px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 22px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 20px 36px rgba(15, 55, 120, 0.22);
+}
+
+header .actions button {
+  min-width: 220px;
+}
+
+header .actions .secondary {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+header .actions .secondary:hover {
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: none;
 }
 
 button.primary {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-  color: #fff;
+  background: linear-gradient(130deg, #ffb86c 0%, #ffe27a 100%);
+  color: #1f2942;
   border: none;
-  padding: 12px 22px;
+  padding: 14px 28px;
   border-radius: 999px;
-  font-size: 0.95rem;
+  font-size: 1rem;
   cursor: pointer;
-  font-weight: 600;
-  box-shadow: 0 14px 28px rgba(33, 150, 243, 0.28);
+  font-weight: 700;
+  box-shadow: 0 18px 34px rgba(255, 184, 108, 0.36);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 button.primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 36px rgba(33, 150, 243, 0.32);
+  box-shadow: 0 24px 44px rgba(255, 184, 108, 0.4);
 }
 
 button.secondary {
-  background: rgba(255, 255, 255, 0.88);
-  border: 2px solid rgba(255, 255, 255, 0.75);
-  color: var(--primary);
-  padding: 10px 18px;
+  background: rgba(79, 157, 255, 0.12);
+  border: 1px solid rgba(79, 157, 255, 0.24);
+  color: var(--primary-dark);
+  padding: 12px 24px;
   border-radius: 999px;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   cursor: pointer;
   font-weight: 600;
-  box-shadow: 0 10px 24px rgba(255, 209, 102, 0.28);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+  box-shadow: 0 12px 26px rgba(79, 157, 255, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 button.secondary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 28px rgba(255, 209, 102, 0.32);
+  background: rgba(79, 157, 255, 0.18);
+  box-shadow: 0 18px 32px rgba(79, 157, 255, 0.22);
 }
 
 .header-cell {
@@ -199,7 +254,7 @@ th.sortable-th {
 }
 
 .sort-toggle.is-active .sort-icon {
-  color: var(--accent-dark);
+  color: var(--primary-dark);
 }
 
 th.sortable-th.sorted-asc::after,
@@ -211,12 +266,15 @@ th.sortable-th.sorted-desc::after {
   right: 14px;
   height: 3px;
   border-radius: 999px;
-  background: var(--accent);
   opacity: 0.9;
 }
 
-th.sortable-th.sorted-desc::after {
+th.sortable-th.sorted-asc::after {
   background: var(--primary);
+}
+
+th.sortable-th.sorted-desc::after {
+  background: var(--accent);
 }
 
 th.sortable-th .toolbar {
@@ -231,18 +289,18 @@ th.sortable-th .toolbar {
   gap: 16px;
   flex-wrap: wrap;
   padding: 14px 20px;
-  background: rgba(33, 150, 243, 0.12);
-  color: #1f2a44;
+  background: linear-gradient(120deg, rgba(79, 157, 255, 0.14), rgba(255, 255, 255, 0.96));
+  color: var(--text);
   font-weight: 600;
   border-radius: 18px 18px 0 0;
-  border-bottom: 1px solid rgba(33, 150, 243, 0.16);
+  border-bottom: 1px solid rgba(79, 157, 255, 0.18);
   text-align: left;
 }
 
 .sort-status button {
   background: none;
   border: none;
-  color: var(--accent-dark);
+  color: var(--primary-dark);
   cursor: pointer;
   font-weight: 600;
   text-decoration: underline;
@@ -251,15 +309,14 @@ th.sortable-th .toolbar {
 }
 
 .sort-status button:hover {
-  color: var(--primary-dark);
 }
 
 .table-container {
   overflow-x: auto;
-  border-radius: 20px;
-  box-shadow: 0 18px 38px rgba(33, 150, 243, 0.14);
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.88) 100%);
-  border: 2px solid rgba(33, 150, 243, 0.1);
+  border-radius: 24px;
+  box-shadow: 0 26px 52px rgba(36, 109, 211, 0.14);
+  background: var(--surface);
+  border: 1px solid rgba(79, 157, 255, 0.16);
   position: relative;
 }
 
@@ -270,16 +327,21 @@ table {
 }
 
 th, td {
-  border-bottom: 1px solid rgba(33, 150, 243, 0.12);
-  padding: 12px 16px;
+  border-bottom: 1px solid rgba(217, 228, 255, 0.82);
+  padding: 14px 18px;
   text-align: center;
 }
 
 th {
-  background: linear-gradient(120deg, rgba(33, 150, 243, 0.16), rgba(255, 111, 145, 0.14));
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: #1f2a44;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  color: var(--text);
+}
+
+table th:first-child,
+table th:nth-child(2) {
+  text-align: left;
 }
 
 td.name-cell {
@@ -287,7 +349,7 @@ td.name-cell {
   font-weight: 600;
   cursor: grab;
   user-select: none;
-  color: #1b2a6b;
+  color: var(--text);
 }
 
 .member-row.dragging td.name-cell {
@@ -297,33 +359,39 @@ td.name-cell {
 
 td.class-cell {
   text-align: left;
-  color: rgba(55, 71, 133, 0.8);
+  color: var(--text-muted);
   font-weight: 600;
 }
 
 td.toggle-cell button {
-  width: 48px;
-  height: 32px;
-  border-radius: 16px;
-  border: none;
-  background: rgba(255, 255, 255, 0.92);
+  width: 52px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(217, 228, 255, 0.9);
+  background: #ffffff;
   cursor: pointer;
-  font-size: 1rem;
-  box-shadow: 0 6px 16px rgba(33, 150, 243, 0.12);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  box-shadow: 0 8px 18px rgba(31, 109, 211, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease, border 0.2s ease;
 }
 
 td.toggle-cell button.on {
-  background: linear-gradient(135deg, rgba(33, 150, 243, 0.85), rgba(33, 150, 243, 0.65));
-  color: #fff;
-  font-weight: 600;
-  box-shadow: 0 8px 18px rgba(33, 150, 243, 0.25);
+  background: linear-gradient(135deg, rgba(79, 157, 255, 0.2), rgba(79, 157, 255, 0.34));
+  border-color: rgba(79, 157, 255, 0.48);
+  color: var(--primary-dark);
+  box-shadow: 0 12px 24px rgba(79, 157, 255, 0.24);
 }
 
 td.toggle-cell button.off {
-  background: rgba(255, 111, 145, 0.16);
-  color: var(--accent-dark);
-  font-weight: 600;
+  background: rgba(255, 184, 108, 0.18);
+  border-color: rgba(255, 184, 108, 0.42);
+  color: #c26a24;
+}
+
+td.toggle-cell button:hover {
+  transform: translateY(-1px);
 }
 
 td.toggle-cell button:active {
@@ -332,8 +400,7 @@ td.toggle-cell button:active {
 
 td.total-cell {
   font-weight: 700;
-  color: var(--accent-dark);
-}
+  color: var(--primary-dark);
 
 .caption {
   color: var(--text-muted);
@@ -347,9 +414,8 @@ header .caption {
 }
 
 th .caption {
-  color: var(--accent-dark);
-  font-weight: 600;
-}
+  color: var(--text-muted);
+  font-weight: 500;
 
 .dialog-backdrop {
   position: fixed;
@@ -417,8 +483,7 @@ button.danger {
 button.link {
   background: transparent;
   border: none;
-  color: var(--accent-dark);
-  cursor: pointer;
+  color: var(--primary-dark);
   padding: 0;
 }
 
@@ -432,36 +497,59 @@ button.link {
 .toolbar button {
   font-size: 0.85rem;
   padding: 6px 10px;
-  color: var(--accent-dark);
+  color: var(--primary-dark);
   font-weight: 600;
 }
+
 
 @media (max-width: 768px) {
   main {
     margin: 24px auto 32px;
-    padding: 24px 18px 28px;
+    padding: 24px 18px 32px;
   }
 
   header {
-    padding: 32px 20px 36px;
+    grid-template-columns: 1fr;
+    padding: 36px 24px 40px;
+    text-align: left;
+    gap: 28px;
   }
 
   header h1 {
-    font-size: 1.4rem;
+    font-size: 1.6rem;
   }
 
-  th, td {
+  th,
+  td {
     padding: 10px;
   }
 
   header .actions {
     width: 100%;
+    align-items: stretch;
+    padding: 20px;
+    box-shadow: 0 12px 24px rgba(15, 55, 120, 0.18);
   }
 
   header .actions button {
-    flex: 1 1 140px;
+    width: 100%;
+    min-width: 0;
   }
 }
+
+  header .actions {
+    width: 100%;
+    align-items: stretch;
+    padding: 20px;
+    box-shadow: 0 12px 24px rgba(15, 55, 120, 0.18);
+  }
+
+  header .actions button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
 .table-container {
   position: relative;
 }
@@ -470,9 +558,10 @@ thead th {
   position: sticky;
   top: 0;
   z-index: 2;
-  background: linear-gradient(120deg, rgba(33, 150, 243, 0.2), rgba(255, 111, 145, 0.18));
-  color: #1f2a44;
-  backdrop-filter: blur(4px);
+  background: linear-gradient(135deg, rgba(79, 157, 255, 0.16), rgba(255, 255, 255, 0.94));
+  color: var(--text);
+  backdrop-filter: blur(6px);
+  box-shadow: inset 0 -1px 0 rgba(217, 228, 255, 0.75);
 }
 
 thead th:first-child {
@@ -481,33 +570,33 @@ thead th:first-child {
 }
 
 tbody tr:nth-child(odd) td {
-  background: rgba(255, 255, 255, 0.92);
+  background: #ffffff;
 }
 
 tbody tr:nth-child(even) td {
-  background: rgba(228, 243, 255, 0.7);
+  background: #f4f7ff;
 }
 
 tbody tr:hover td {
-  background: rgba(255, 255, 255, 0.98);
+  background: #eaf2ff;
 }
 
 tbody td.name-cell {
   position: sticky;
   left: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(242, 247, 255, 0.96));
+  background: linear-gradient(135deg, #ffffff 0%, #f4f7ff 100%);
   z-index: 1;
-  box-shadow: 6px 0 12px rgba(33, 150, 243, 0.08);
+  box-shadow: 6px 0 14px rgba(31, 109, 211, 0.08);
 }
 
 table tr:hover td.name-cell {
-  background: rgba(255, 255, 255, 0.95);
+  background: #eaf2ff;
 }
 
 .table-container tfoot td {
-  background: rgba(255, 209, 102, 0.22);
+  background: rgba(79, 157, 255, 0.1);
   font-weight: 700;
-  color: #8d5300;
+  color: var(--primary-dark);
 }
 
 .member-row.dragging {
@@ -515,11 +604,11 @@ table tr:hover td.name-cell {
 }
 
 .member-row.drag-over td {
-  outline: 2px solid rgba(255, 111, 145, 0.4);
+  outline: 2px solid rgba(79, 157, 255, 0.35);
   outline-offset: -2px;
 }
 .member-row.drag-over td.name-cell {
-  outline-color: rgba(33, 150, 243, 0.55);
+  outline-color: rgba(79, 157, 255, 0.55);
 }
 
 
@@ -565,8 +654,8 @@ table tr:hover td.name-cell {
   align-items: center;
   gap: 16px;
   border-radius: 24px;
-  background: linear-gradient(160deg, rgba(33, 150, 243, 0.12), rgba(255, 111, 145, 0.12));
-  box-shadow: inset 0 0 0 1px rgba(33, 150, 243, 0.08);
+  background: linear-gradient(145deg, rgba(79, 157, 255, 0.14), rgba(255, 184, 108, 0.14));
+  box-shadow: inset 0 0 0 1px rgba(79, 157, 255, 0.18);
 }
 
 .backup-buttons {
@@ -578,7 +667,7 @@ table tr:hover td.name-cell {
 
 .backup-actions .caption {
   text-align: center;
-  color: rgba(33, 33, 33, 0.72);
+  color: var(--text-muted);
 }
 
 
@@ -591,18 +680,20 @@ table thead {
 .asset-meta {
   margin-top: 24px;
   font-size: 0.75rem;
-  color: rgba(33, 33, 33, 0.58);
+  color: var(--text-muted);
   text-align: right;
   display: flex;
   flex-wrap: wrap;
   gap: 4px 12px;
   justify-content: flex-end;
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--surface-elevated);
   padding: 12px 16px;
+  border: 1px solid rgba(79, 157, 255, 0.12);
   border-radius: 16px;
 }
 
 .asset-meta span {
   white-space: nowrap;
 }
+
 
