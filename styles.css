@@ -139,6 +139,121 @@ button.secondary:hover {
   box-shadow: 0 14px 28px rgba(255, 209, 102, 0.32);
 }
 
+.header-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-cell--date {
+  align-items: stretch;
+}
+
+th.sortable-th {
+  position: relative;
+}
+
+.sort-toggle {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: transform 0.15s ease, color 0.2s ease;
+}
+
+.sort-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.sort-toggle:focus-visible {
+  outline: 2px solid var(--highlight);
+  outline-offset: 2px;
+}
+
+.sort-toggle--stacked {
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 4px;
+}
+
+.sort-toggle .sort-label {
+  font-weight: 600;
+}
+
+.sort-toggle .sort-icon {
+  font-size: 0.75rem;
+  color: rgba(31, 42, 68, 0.6);
+}
+
+.sort-toggle--stacked .sort-icon {
+  align-self: flex-end;
+}
+
+.sort-toggle.is-active .sort-icon {
+  color: var(--accent-dark);
+}
+
+th.sortable-th.sorted-asc::after,
+th.sortable-th.sorted-desc::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 14px;
+  right: 14px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: 0.9;
+}
+
+th.sortable-th.sorted-desc::after {
+  background: var(--primary);
+}
+
+th.sortable-th .toolbar {
+  margin-bottom: 0;
+  justify-content: flex-end;
+}
+
+.sort-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  background: rgba(33, 150, 243, 0.12);
+  color: #1f2a44;
+  font-weight: 600;
+  border-radius: 18px 18px 0 0;
+  border-bottom: 1px solid rgba(33, 150, 243, 0.16);
+  text-align: left;
+}
+
+.sort-status button {
+  background: none;
+  border: none;
+  color: var(--accent-dark);
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: underline;
+  padding: 0;
+  margin-left: auto;
+}
+
+.sort-status button:hover {
+  color: var(--primary-dark);
+}
+
 .table-container {
   overflow-x: auto;
   border-radius: 20px;

@@ -346,6 +346,7 @@ function App() {
   const [dateDialog, setDateDialog] = useState({ open: false, target: null });
   const [draggingMemberId, setDraggingMemberId] = useState(null);
   const [dragOverMemberId, setDragOverMemberId] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [importStatus, setImportStatus] = useState("");
   const [pullDistance, setPullDistance] = useState(0);
   const [pullReady, setPullReady] = useState(false);
@@ -541,12 +542,130 @@ function App() {
     return result;
   }, [data.members, data.attendance, sortedDates]);
 
+  const displayMembers = useMemo(() => {
+    if (!sortConfig.key) {
+      return data.members;
+    }
+
+    const members = [...data.members];
+    const memberIndexMap = new Map(data.members.map((member, index) => [member.id, index]));
+    const directionFactor = sortConfig.direction === "asc" ? 1 : -1;
+
+    const getSortValue = (member) => {
+      switch (sortConfig.key) {
+        case "name":
+          return member.name || "";
+        case "class":
+          return member.className || "";
+        case "total":
+          return totals[member.id] ?? 0;
+        default: {
+          if (sortConfig.key.startsWith("date:")) {
+            const dateId = sortConfig.key.slice(5);
+            const memberAttendance = data.attendance[member.id] || {};
+            return memberAttendance[dateId] ? 1 : 0;
+          }
+          return memberIndexMap.get(member.id) || 0;
+        }
+      }
+    };
+
+    members.sort((a, b) => {
+      const valueA = getSortValue(a);
+      const valueB = getSortValue(b);
+
+      let comparison = 0;
+      if (sortConfig.key === "name" || sortConfig.key === "class") {
+        comparison = String(valueA || "").localeCompare(String(valueB || ""), "ja");
+      } else {
+        const numberA = Number(valueA ?? 0);
+        const numberB = Number(valueB ?? 0);
+        comparison = numberA - numberB;
+      }
+
+      if (comparison === 0) {
+        comparison = (memberIndexMap.get(a.id) ?? 0) - (memberIndexMap.get(b.id) ?? 0);
+      }
+
+      return comparison * directionFactor;
+    });
+
+    return members;
+  }, [data.members, data.attendance, sortConfig, totals]);
+
+  const isSortingActive = Boolean(sortConfig.key);
+
+  const toggleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key === key) {
+        return { key, direction: prev.direction === "asc" ? "desc" : "asc" };
+      }
+      return { key, direction: "asc" };
+    });
+  };
+
+  const getSortDirection = (key) => (sortConfig.key === key ? sortConfig.direction : null);
+
+  const getSortIcon = (key) => {
+    if (sortConfig.key !== key) {
+      return "⇅";
+    }
+    return sortConfig.direction === "asc" ? "▲" : "▼";
+  };
+
+  const getSortAriaLabel = (key, label) => {
+    const direction = getSortDirection(key);
+    if (!direction) {
+      return `${label}を昇順に並び替える`;
+    }
+    return `${label}を${direction === "asc" ? "降順" : "昇順"}に並び替える`;
+  };
+
+  const getHeaderClassName = (key) => {
+    const classes = ["sortable-th"];
+    if (sortConfig.key === key) {
+      classes.push(`sorted-${sortConfig.direction}`);
+    }
+    return classes.join(" ");
+  };
+
+  const getSortButtonClasses = (key, extraClass = "") => {
+    const classes = ["sort-toggle"];
+    if (extraClass) {
+      classes.push(extraClass);
+    }
+    if (sortConfig.key === key) {
+      classes.push("is-active");
+      classes.push(`is-${sortConfig.direction}`);
+    }
+    return classes.join(" ");
+  };
+
+  const resolveSortLabel = (key) => {
+    if (!key) return "";
+    if (key === "name") return "部員名";
+    if (key === "class") return "クラス";
+    if (key === "total") return "合計金額";
+    if (key.startsWith("date:")) {
+      const target = sortedDates.find((day) => `date:${day.id}` === key);
+      if (target) {
+        return `${formatDateDisplay(target.date)}の出欠`;
+      }
+    }
+    return "";
+  };
+
+  const clearSort = () => setSortConfig({ key: null, direction: "asc" });
+
   const openNewMemberDialog = () => setMemberDialog({ open: true, target: null });
   const openEditMemberDialog = (member) => setMemberDialog({ open: true, target: member });
   const openNewDateDialog = () => setDateDialog({ open: true, target: null });
   const openEditDateDialog = (day) => setDateDialog({ open: true, target: day });
 
   const handleDragStart = (memberId) => (event) => {
+    if (isSortingActive) {
+      return;
+    }
     setDraggingMemberId(memberId);
     setDragOverMemberId(null);
     if (event.dataTransfer) {
@@ -560,6 +679,9 @@ function App() {
   };
 
   const handleDragOver = (memberId) => (event) => {
+    if (isSortingActive) {
+      return;
+    }
     event.preventDefault();
     if (memberId === draggingMemberId) {
       return;
@@ -577,6 +699,9 @@ function App() {
   };
 
   const handleDrop = (memberId) => (event) => {
+    if (isSortingActive) {
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
     if (!draggingMemberId || draggingMemberId === memberId) {
@@ -594,7 +719,7 @@ function App() {
   };
 
   const handleDropToEnd = (event) => {
-    if (!draggingMemberId) {
+    if (isSortingActive || !draggingMemberId) {
       return;
     }
     event.preventDefault();
@@ -770,29 +895,103 @@ function App() {
       </header>
 
       <section className="table-container">
+        {isSortingActive && (
+          <div className="sort-status">
+            <span>
+              {`${(resolveSortLabel(sortConfig.key) || "選択中の列")}を${
+                sortConfig.direction === "asc" ? "昇順" : "降順"
+              }に並び替え中`}
+            </span>
+            <button type="button" onClick={clearSort}>
+              並び替えを解除
+            </button>
+          </div>
+        )}
         <table>
           <thead>
             <tr>
-              <th>部員名</th>
-              <th>クラス</th>
-              {sortedDates.map((day) => (
-                <th key={day.id}>
-                  <div>{formatDateDisplay(day.date)}</div>
-                  <div className="caption">{formatCurrency(day.amount)}</div>
-                  <div className="toolbar">
-                    <button className="link" draggable={false} onClick={() => openEditDateDialog(day)}>
-                      編集
-                    </button>
-                  </div>
-                </th>
-              ))}
-              <th>合計金額</th>
-              <th>操作</th>
+              <th scope="col" className={getHeaderClassName("name")}>
+                <div className="header-cell">
+                  <button
+                    type="button"
+                    className={getSortButtonClasses("name")}
+                    onClick={() => toggleSort("name")}
+                    aria-label={getSortAriaLabel("name", "部員名")}
+                    title={getSortAriaLabel("name", "部員名")}
+                  >
+                    <span className="sort-label">部員名</span>
+                    <span className="sort-icon" aria-hidden="true">
+                      {getSortIcon("name")}
+                    </span>
+                  </button>
+                </div>
+              </th>
+              <th scope="col" className={getHeaderClassName("class")}>
+                <div className="header-cell">
+                  <button
+                    type="button"
+                    className={getSortButtonClasses("class")}
+                    onClick={() => toggleSort("class")}
+                    aria-label={getSortAriaLabel("class", "クラス")}
+                    title={getSortAriaLabel("class", "クラス")}
+                  >
+                    <span className="sort-label">クラス</span>
+                    <span className="sort-icon" aria-hidden="true">
+                      {getSortIcon("class")}
+                    </span>
+                  </button>
+                </div>
+              </th>
+              {sortedDates.map((day) => {
+                const dateKey = `date:${day.id}`;
+                const label = `${formatDateDisplay(day.date)}の出欠`;
+                return (
+                  <th key={day.id} scope="col" className={getHeaderClassName(dateKey)}>
+                    <div className="header-cell header-cell--date">
+                      <button
+                        type="button"
+                        className={getSortButtonClasses(dateKey, "sort-toggle--stacked")}
+                        onClick={() => toggleSort(dateKey)}
+                        aria-label={getSortAriaLabel(dateKey, label)}
+                        title={getSortAriaLabel(dateKey, label)}
+                      >
+                        <div className="sort-label">{formatDateDisplay(day.date)}</div>
+                        <div className="caption">{formatCurrency(day.amount)}</div>
+                        <span className="sort-icon" aria-hidden="true">
+                          {getSortIcon(dateKey)}
+                        </span>
+                      </button>
+                      <div className="toolbar">
+                        <button className="link" draggable={false} onClick={() => openEditDateDialog(day)}>
+                          編集
+                        </button>
+                      </div>
+                    </div>
+                  </th>
+                );
+              })}
+              <th scope="col" className={getHeaderClassName("total")}>
+                <div className="header-cell">
+                  <button
+                    type="button"
+                    className={getSortButtonClasses("total")}
+                    onClick={() => toggleSort("total")}
+                    aria-label={getSortAriaLabel("total", "合計金額")}
+                    title={getSortAriaLabel("total", "合計金額")}
+                  >
+                    <span className="sort-label">合計金額</span>
+                    <span className="sort-icon" aria-hidden="true">
+                      {getSortIcon("total")}
+                    </span>
+                  </button>
+                </div>
+              </th>
+              <th scope="col">操作</th>
             </tr>
           </thead>
           <tbody
             onDragOver={(event) => {
-              if (draggingMemberId) {
+              if (draggingMemberId && !isSortingActive) {
                 event.preventDefault();
               }
             }}
@@ -800,12 +999,12 @@ function App() {
           >
             {data.members.length === 0 ? (
               <tr>
-                <td colSpan={sortedDates.length + 3} className="caption" style={{ textAlign: "center" }}>
+                <td colSpan={sortedDates.length + 4} className="caption" style={{ textAlign: "center" }}>
                   部員が登録されていません。
                 </td>
               </tr>
             ) : (
-              data.members.map((member) => {
+              displayMembers.map((member) => {
                 const attendanceMap = data.attendance[member.id] || {};
                 const isDragging = draggingMemberId === member.id;
                 const isDragOver = dragOverMemberId === member.id && draggingMemberId !== member.id;
@@ -826,11 +1025,12 @@ function App() {
                   >
                     <td
                       className="name-cell"
-                      draggable
+                      draggable={!isSortingActive}
                       onDragStart={handleDragStart(member.id)}
                       onDragEnd={handleDragEnd}
                       aria-grabbed={isDragging}
-                      aria-label={`${member.name} の表示順を変更`}
+                      aria-disabled={isSortingActive}
+                      aria-label={`${member.name} の並び順を変更`}
                     >
                       {member.name}
                     </td>
