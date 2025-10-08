@@ -27,6 +27,32 @@ const formatDateDisplay = (isoDate) => {
   return `${Number(month)}/${Number(day)}`;
 };
 
+const ASSETS_TO_TRACK = [
+  { name: "index.html", url: "./index.html" },
+  { name: "app.jsx", url: "./app.jsx" },
+  { name: "service-worker.js", url: "./service-worker.js" },
+  { name: "styles.css", url: "./styles.css" },
+];
+
+const formatAssetTimestamp = (value) => {
+  if (!value) {
+    return "";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
+  }
+  return new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).format(date);
+};
+
 const createInitialData = () => {
   const memberId = generateId("member");
   const dateId = generateId("date");
@@ -324,6 +350,7 @@ function App() {
   const [pullDistance, setPullDistance] = useState(0);
   const [pullReady, setPullReady] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [assetMetadata, setAssetMetadata] = useState([]);
   const fileInputRef = useRef(null);
   const pullStartYRef = useRef(0);
   const pullActiveRef = useRef(false);
@@ -450,6 +477,53 @@ function App() {
     const normalized = ensureAttendanceCompleteness(data);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(normalized));
   }, [data]);
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchAssetMetadata = async () => {
+      try {
+        const entries = await Promise.all(
+          ASSETS_TO_TRACK.map(async (asset) => {
+            const result = { name: asset.name, timestamp: "" };
+            try {
+              const headResponse = await fetch(asset.url, { method: "HEAD", cache: "reload" });
+              if (!headResponse.ok) {
+                throw new Error(`HEAD request failed: ${headResponse.status}`);
+              }
+              const headerValue = headResponse.headers.get("Last-Modified");
+              result.timestamp = formatAssetTimestamp(headerValue);
+              return result;
+            } catch (error) {
+              try {
+                const getResponse = await fetch(asset.url, { cache: "reload" });
+                if (getResponse.ok) {
+                  const headerValue = getResponse.headers.get("Last-Modified");
+                  result.timestamp = formatAssetTimestamp(headerValue);
+                  return result;
+                }
+              } catch (innerError) {
+                console.warn("Asset metadata fetch failed", asset.url, innerError);
+              }
+              console.warn("Asset metadata HEAD request failed", asset.url, error);
+              return result;
+            }
+          })
+        );
+
+        if (!cancelled) {
+          setAssetMetadata(entries);
+        }
+      } catch (error) {
+        console.warn("Asset metadata collection failed", error);
+      }
+    };
+
+    fetchAssetMetadata();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const sortedDates = useMemo(() => {
     return [...data.expenseDays].sort((a, b) => (a.date > b.date ? 1 : -1));
@@ -847,6 +921,15 @@ function App() {
         onSubmit={upsertDate}
         onDelete={(id) => removeDate(id)}
       />
+      <footer className="asset-meta">
+        {assetMetadata.map(({ name, timestamp }) => (
+          <span key={name}>
+            {name}
+            {" - "}
+            {timestamp || "-"}
+          </span>
+        ))}
+      </footer>
     </main>
   );
 }

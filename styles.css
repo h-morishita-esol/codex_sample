@@ -342,3 +342,19 @@ table thead {
   z-index: 3;
 }
 
+.asset-meta {
+  margin-top: 16px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  opacity: 0.6;
+  text-align: right;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  justify-content: flex-end;
+}
+
+.asset-meta span {
+  white-space: nowrap;
+}
+
