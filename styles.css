@@ -17,6 +17,10 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -31,43 +35,9 @@ body {
 main {
   max-width: 1120px;
   margin: 48px auto 64px;
-  padding: 48px 48px 56px;
-  background: var(--surface);
-  border-radius: 32px;
-  box-shadow: 0 30px 60px rgba(31, 109, 211, 0.12);
+  padding: 0 32px 56px;
   position: relative;
-  width: min(1120px, calc(100vw - 64px));
-}
-
-main::before,
-main::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.45;
-}
-
-main::before {
-  top: -140px;
-  right: -80px;
-  width: 260px;
-  height: 260px;
-  background: radial-gradient(circle at center, rgba(79, 157, 255, 0.35), transparent 68%);
-}
-
-main::after {
-  bottom: -160px;
-  left: -120px;
-  width: 320px;
-  height: 320px;
-  background: radial-gradient(circle at center, rgba(255, 184, 108, 0.28), transparent 70%);
-}
-
-main > * {
-  position: relative;
-  z-index: 1;
+  width: min(1120px, 100%);
 }
 
 header {
@@ -76,11 +46,12 @@ header {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 40px;
   margin-bottom: 48px;
-  padding: 56px 64px;
+  padding: 48px 48px 52px;
   border-radius: 28px;
   color: #fff;
   background: linear-gradient(120deg, #4f9dff 0%, #6da8ff 45%, #68d4ff 100%);
   box-shadow: 0 32px 60px rgba(44, 120, 220, 0.25);
+  overflow: hidden;
 }
 
 header::before,
@@ -89,7 +60,7 @@ header::after {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
-  opacity: 0.35;
+  opacity: 0.28;
 }
 
 header::before {
@@ -97,7 +68,7 @@ header::before {
   right: -60px;
   width: 260px;
   height: 260px;
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.9), transparent 72%);
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.72), transparent 72%);
 }
 
 header::after {
@@ -105,7 +76,7 @@ header::after {
   left: -80px;
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle at center, rgba(255, 226, 122, 0.7), transparent 70%);
+  background: radial-gradient(circle at center, rgba(255, 226, 122, 0.6), transparent 70%);
 }
 
 header > div:first-child {
@@ -121,6 +92,7 @@ header h1 {
   font-size: 2.2rem;
   font-weight: 800;
   letter-spacing: 0.02em;
+  white-space: nowrap;
   text-shadow: 0 12px 32px rgba(15, 55, 120, 0.28);
 }
 
@@ -321,6 +293,7 @@ th.sortable-th .toolbar {
 
 .table-container {
   overflow-x: auto;
+  max-width: 100%;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-x pan-y;
   border-radius: 24px;
@@ -670,9 +643,9 @@ table thead {
 
 @media (max-width: 768px) {
   main {
-    margin: 24px auto 32px;
-    padding: 24px 18px 32px;
-    width: calc(100vw - 24px);
+    margin: 24px auto 40px;
+    padding: 0 16px 40px;
+    width: 100%;
   }
 
   header {
@@ -730,7 +703,7 @@ table thead {
   }
 
   .table-container {
-    margin: 0 -12px 24px;
+    margin: 0 0 24px;
     border-radius: 18px;
   }
 
@@ -738,34 +711,6 @@ table thead {
     min-width: 640px;
   }
 
-  table thead {
-    position: static;
-  }
-
-  thead th {
-    position: static;
-    box-shadow: none;
-  }
-
-  thead th:first-child {
-    position: static;
-    z-index: auto;
-  }
-
-  tbody td.name-cell {
-    position: static;
-    box-shadow: none;
-    cursor: default;
-  }
-
-  .member-row.dragging td.name-cell {
-    cursor: default;
-  }
-
-  .asset-meta {
-    justify-content: center;
-    text-align: center;
-  }
 }
 
 
